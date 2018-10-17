@@ -1,8 +1,42 @@
 package com.rtjvm.scala.oop.files
 
+import scala.annotation.tailrec
+
 class Directory(override val parentPath: String, override val name: String, val contents: List[DirEntry])
   extends DirEntry(parentPath, name) {
 
+  def hasEntry(name: String): Boolean =
+    findEntry(name) != null
+
+  def getAllForldersInPath: List[String] =
+    path.substring(1).split(Directory.SEPARATOR).toList.filter(x => !x.isEmpty)
+    // /a/b/c/d => List["a", "b", "c", "d"]
+
+  def findDescendant(path: List[String]): Directory =
+    if (path.isEmpty) this
+    else findEntry(path.head).asDirectory.findDescendant(path.tail)
+
+  def addEntry(newEntry: DirEntry): Directory =
+    new Directory(parentPath, name, contents :+ newEntry)
+
+  def findEntry(entryName: String): DirEntry = {
+    @tailrec
+    def findEntryHelper(name: String, contentList: List[DirEntry]): DirEntry =
+      if (contentList.isEmpty)
+        null
+      else if (contentList.head.name.equals(name))
+        contentList.head
+      else
+        findEntryHelper(name, contentList.tail)
+
+    findEntryHelper(entryName, contents)
+  }
+
+  def replaceEntry(entryName: String, newEntry: DirEntry): Directory =
+    new Directory(parentPath, name, contents.filter(e => !e.name.equals(entryName)) :+ newEntry)
+
+  def asDirectory: Directory = this
+  def getType: String = "Directory"
 }
 
 object Directory {
@@ -14,3 +48,21 @@ object Directory {
   def empty(parentPath: String, name: String): Directory =
     new Directory(parentPath, name, List())
 }
+
+
+
+
+
+/* Alternative implementation of replaceEntry:
+  def replaceEntry(entryName: String, newEntry: DirEntry): Directory = {
+
+    @tailrec
+    def entriesNotNeedingReplacement(entries: List[DirEntry], result: List[DirEntry]): List[DirEntry] =
+      if (entries.isEmpty) result
+      else if (entries.head.name == entryName) entries.tail ++ result // just skipping over this entry
+      else entriesNotNeedingReplacement(entries.tail, entries.head :: result)
+
+    val newContents = entriesNotNeedingReplacement(contents, List()) :+ newEntry
+    new Directory(parentPath, name, newContents)
+  }
+ */
