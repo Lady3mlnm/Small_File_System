@@ -1,5 +1,7 @@
 package com.rtjvm.scala.oop.files
 
+import com.rtjvm.scala.oop.filesystem.FilesystemException
+
 import scala.annotation.tailrec
 
 class Directory(override val parentPath: String, override val name: String, val contents: List[DirEntry])
@@ -36,6 +38,10 @@ class Directory(override val parentPath: String, override val name: String, val 
     new Directory(parentPath, name, contents.filter(e => !e.name.equals(entryName)) :+ newEntry)
 
   def asDirectory: Directory = this
+
+  def asFile: File =
+    throw new FilesystemException("A directory cannot be converted to a file!")
+
   def getType: String = "Directory"
 }
 
@@ -48,21 +54,3 @@ object Directory {
   def empty(parentPath: String, name: String): Directory =
     new Directory(parentPath, name, List())
 }
-
-
-
-
-
-/* Alternative implementation of replaceEntry:
-  def replaceEntry(entryName: String, newEntry: DirEntry): Directory = {
-
-    @tailrec
-    def entriesNotNeedingReplacement(entries: List[DirEntry], result: List[DirEntry]): List[DirEntry] =
-      if (entries.isEmpty) result
-      else if (entries.head.name == entryName) entries.tail ++ result // just skipping over this entry
-      else entriesNotNeedingReplacement(entries.tail, entries.head :: result)
-
-    val newContents = entriesNotNeedingReplacement(contents, List()) :+ newEntry
-    new Directory(parentPath, name, newContents)
-  }
- */
