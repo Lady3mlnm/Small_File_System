@@ -18,24 +18,24 @@ class Cd(dir: String) extends Command {
      */
 
     // 1. find root
-    val root = state.root
-    val wd = state.wd
+    val root: Directory = state.root
+    val wd: Directory = state.wd
 
     // 2. find the absolute path of the directory I want to cd to
-    val absolutePath =
+    val absolutePath: String =
       if (dir.startsWith(Directory.SEPARATOR)) dir
       else if (wd.isRoot) wd.path + dir
       else wd.path + Directory.SEPARATOR + dir
 
     // 3. find the directory to cd to, given the path
-    val destinationDirectory = doFindEntry(root, absolutePath)
+    val destinationDirectory: DirEntry = doFindEntry(root, absolutePath)
 
     // 4. change the state given the new directory
     if (destinationDirectory == null || !destinationDirectory.isDirectory)
       state.setMessage(dir + ": no such directory")
     else
       State(root, destinationDirectory.asDirectory)
-  }
+    }
 
   def doFindEntry(root: Directory, path: String): DirEntry = {
     @tailrec
@@ -45,14 +45,15 @@ class Cd(dir: String) extends Command {
       else if (path.tail.isEmpty)
         currentDirectory.findEntry(path.head)
       else {
-        val nextDir = currentDirectory.findEntry(path.head)
+        val nextDir: DirEntry = currentDirectory.findEntry(path.head)
         if (nextDir == null || !nextDir.isDirectory) null
         else findEntryHelper(nextDir.asDirectory, path.tail)
       }
 
     @tailrec
     def collapseRelativeTokens(path: List[String], result: List[String]): List[String] = {
-      if (path.isEmpty) result
+      if (path.isEmpty)
+        result
       else if (".".equals(path.head))
         collapseRelativeTokens(path.tail, result)
       else if ("..".equals(path.head)) {
@@ -75,7 +76,7 @@ class Cd(dir: String) extends Command {
       /a/b/.. => ["a", "b", ".."] => ["a"]
      */
 
-    val newTokens = collapseRelativeTokens(tokens, List())
+    val newTokens: List[String] = collapseRelativeTokens(tokens, List())
 
     // 2. navigate to the correct entry
     if (newTokens == null) null
