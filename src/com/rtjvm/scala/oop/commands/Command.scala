@@ -7,6 +7,7 @@ trait Command {
 }
 
 object Command {
+  val INFO = "info"
   val MKDIR = "mkdir"
   val LS = "ls"
   val PWD = "pwd"
@@ -27,7 +28,9 @@ object Command {
 
     if (input.isEmpty || tokens.isEmpty)
       emptyCommand
-    else if (MKDIR.equals(tokens(0))) {
+    else if (INFO.equals(tokens(0))) {
+      new Info
+    } else if (MKDIR.equals(tokens(0))) {
       if (tokens.length < 2) incompleteCommand(MKDIR)
       else new Mkdir(tokens(1))
     } else if (LS.equals(tokens(0))) {
