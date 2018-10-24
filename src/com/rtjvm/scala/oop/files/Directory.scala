@@ -10,7 +10,7 @@ class Directory(override val parentPath: String, override val name: String, val 
   def hasEntry(name: String): Boolean =
     findEntry(name) != null
 
-  def getAllForldersInPath: List[String] =
+  def getAllFoldersInPath: List[String] =
     path.substring(1).split(Directory.SEPARATOR).toList.filter(x => !x.isEmpty)
     // /a/b/c/d => List["a", "b", "c", "d"]
 
